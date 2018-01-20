@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html"; charset="UTF-8">
+	<title>Gouilloché</title>
+</head>
+<h1>Guilloché</h1>
+<body>
+	<canvas width="700" height="700" style="border: 1px solid black" id="test1"></canvas>
+	<canvas width="700" height="700" style="border: 1px solid black" id="test2"></canvas>
+	<canvas width="700" height="700" style="border: 1px solid black" id="test3"></canvas>
+	<canvas width="700" height="700" style="border: 1px solid black" id="test4"></canvas>
+	<canvas width="700" height="700" style="border: 1px solid black" id="test4"></canvas>
+
+<script src="guilloche.js"></script>
+<script type="text/javascript">
+	
+	elmt = document.getElementById('test1')
+	g = new Guilloche(elmt)
+	g.step = 0.0001
+
+	p = Parametric
+
+	// definitions
+	e1 = p.sinus(0.2)
+	e1 = p.addX(e1,p.flipX(e1),0.2)
+	e1 = p.rotate(e1,1.5,3,11)
+
+	e2 = p.sinus(0.2)
+	e2 = p.rotate(e2,0.8,3,7)
+
+	e3 = p.polygon(5,0.4)
+	e3 = p.offsetS(e3,1-1/2)
+	e3 = p.rotateXY(e3,2*Math.PI/2)
+
+	e4 = p.circle(0.1)
+
+	a1 = p.epicycloid(3)
+
+	a2 = p.epicycloid(4)
+	a2 = p.guilloche(e2,e3,a2,7,7,20.07)
+
+	a3 = p.sinus(1)
+
+	// Drawing envelopes
+	g.draw(e1)
+	g.draw(e2)
+	g.draw(e3)
+	g.draw(e4)
+
+	// Drawing Intermediary
+	g.drawMid(e3,e4,0)
+
+	// Drawing basic guilloche
+	g.draw(a2)
+
+	// drawing fishscale pattern
+	g.drawFishscale(e3,e4,a3,8,17,0.6,13)
+	g.drawFishscale(e1,e2,a1,9,18,0.9,20)
+
+
+	elmt2 = document.getElementById('test2')
+	g = new Guilloche(elmt2)
+
+	e1 = function(s) {
+		s = s*Math.PI/2
+		return {x: Math.sin(s), y: Math.cos(s)}
+	}
+	e1 = p.mirrorS(e1,0.5)
+
+	e2 = p.sinus(0.3)
+	e2 = p.rotateXY(e2,0.5)
+	e2 = p.transform(e2,-1,-0.5,2,0.5)
+	e2 = p.mirrorS(e2,0.5)
+
+	a1 = p.sinus(1)
+	a1 = p.guilloche(e1,e2,a1,7,7,20.1)
+
+	g.draw(e1)
+	g.draw(e2)
+	g.draw(a1)
+
+	/////////////////////
+	elmt3 = document.getElementById('test3')
+	g = new Guilloche(elmt3)
+
+	e1 = function(s) {
+		s = s*Math.PI/2
+		return {x: Math.sin(s), y: Math.cos(s)}
+	}
+	e1 = p.mirrorS(e1,0.5)
+
+	e2 = p.sinus(0.3)
+	e2 = p.rotateXY(e2,0.5)
+	e2 = p.transform(e2,-1,-0.5,2,0.5)
+	e2 = p.mirrorS(e2,0.5)
+
+	a1 = p.sinus(1)
+
+	g.draw(e1)
+	g.draw(e2)
+	g.drawFishscale(e1,e2,a1,9,19,0.5,20)
+
+	/////////////////////
+	elmt4 = document.getElementById('test4')
+	g = new Guilloche(elmt4)
+
+	e1 = function(s) {
+		s = s*Math.PI*3/2-Math.PI/2
+		var r = 0.25
+		return {x: r*Math.sin(s), y: r*Math.cos(s)+0.25}
+	}
+
+	e2 = function(s) {
+		return {x: 0, y: -0.125*s}
+	}
+
+	e3 = function(s) {
+		return {x: s*0.25, y: -0.125}
+	}
+
+	e4 = function(s) {
+		return {x: 0.25, y: -0.125 - 0.125*s}
+	}
+
+	e5 = function(s) {
+		return {x:0.25 - s*0.375, y: -0.25}
+	}
+
+	e6 = function(s) {
+		return {x:-.125, y: -0.25 + 0.375*s}
+	}
+	e7 = function(s) {
+		return {x:-.125+s*.125, y:.125}
+	}
+	e8 = function(s) {
+		s = s*Math.PI*3/2-Math.PI/2
+		var r = 0.125
+		return {x: r*Math.sin(s), y: r*Math.cos(s)+0.25}
+	}
+	e8 = p.flipS(e8)
+	e9 = function(s) {
+		var val1 = e1(0)
+		var val2 = e8(1)
+		return {x: val2.x+s*(val1.x - val2.x), y: val2.y + s*(val1.y - val2.y)}
+	}
+
+	eBase = p.appendMulti([e1,e2,e3,e4,e5,e6,e7,e8,e9])
+
+	e10 = function(s) {
+		var o = [0, 0.36, 0.37, 0.39, 0.5, 0.75, 0.88, 0.89, 0.90, 1]
+		var t = [0, 1/9, 2/9, 3/9, 4/9, 5/9, 6/9, 7/9, 8/9, 1]
+
+		var i = 1
+		while (!(s <= o[i])) {i ++ }
+		s = (s - o[i-1])/(o[i] - o[i-1])
+		s *= (t[i] - t[i-1])
+		s += t[i-1]
+
+		return eBase(s)
+	}
+	//e10 = eBase
+	e11 = p.circle(0.7)
+	e11 = p.offsetS(e11,0.85)
+
+	a1 = p.sinus(1)
+	a1 = p.guilloche(e10,e11,a1,8,8,30.1)
+
+	g.draw(e10)
+	g.draw(e11)
+	g.draw(a1)
+</script>
+</body>
+</html>

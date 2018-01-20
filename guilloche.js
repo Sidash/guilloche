@@ -1,8 +1,18 @@
 class Parametric {
 // generating parmatric functions scaling between s in [0,1]
 
+	constructor(p) {
+		this.base = p
+	}
 	// utility
 	//
+
+	static getParametric(p) {
+		// returns the parametric function
+		try { p(0) } 
+		catch (TypeError) { p = p.base}
+		return p
+	}
 
 	static get pExp() {
 		return 3 // decimals considered for phase offset clearance
@@ -109,6 +119,65 @@ class Parametric {
 
 	// basic transformations
 	//
+
+	rotate(radius, rev, repeat) {
+		this.base = Parametric.rotate(this.base, radius, rev, repeat)
+	}
+	rotateXY(angle) {
+		this.base = Parametric.rotateXY(this.base, angle)
+	}
+
+	transform(shiftX, shiftY, scaleX, scaleY) {
+		this.base = Parametric.transform(this.base, shiftX, shiftY, scaleX, scaleY)
+	} 
+
+	offsetX(offset) {
+		this.base = Parametric.offsetX(this.base, offset) 
+	}
+
+	offsetS(offset) {
+		this.base = Parametric.offsetS(this.base, offset)
+	}
+
+	mirrorS(mirror) {
+		this.base = Parametric.mirrorS(this.base, mirror)
+	}
+
+	flipXY() {
+		this.base = Parametric.flipXY(this.base)
+	}
+
+	flipX() {
+		this.base = Parametric.flipX(this.base)
+	}
+
+	flipY() {
+		this.base = Parametric.flipY(this.base)
+	}
+
+	repeatX(repeat) {
+		this.base = Parametric.repeatX(this.base, repeat)
+	}
+
+	repeat(repeat) {
+		this.base = Parametric.repeat(this.base, repeat)
+	} 	
+
+	guilloche(p2, p3, rev1, rev2, repeat) {
+		this.base = Parametric.guilloche(this.base, p2.base, p3.base, rev1, rev2, repeat)
+	}
+
+	append(p2,ratio) {
+		this.base = Parametric.append(this.base,p2.base,ratio)
+	}
+
+	addX(p2,ratio) {
+		this.base = Parametric.addX(this.base,p2.base,ratio)
+	}
+
+
+//	append(p1,p2,ratio) {}
+//	appendMulti(pList) {}
 
 	static rotateXY(p,angle) {
 	// rotate parametric p around the origin
@@ -282,7 +351,7 @@ class Parametric {
 		var mid = function(s) {
 			return {x: s, y: ratio}
 		}
-		return this.guilloche(env1,env2,mid,1,1,1)
+		return this.guilloche(mid,env1,env2,1,1,1)
 	}
 
 	static rotate(parametric, radius, rev, repeat) {
@@ -316,7 +385,7 @@ class Parametric {
 		// between the envelopes p1 and p2
 		// rev1, rev2: the total nomber of revolutions in p1 and p2, respectively
 		// repeat: the number of repeats for p3 within one revolution 
-		var c = this.getPhaseClearance(repeat)
+		var c = Parametric.getPhaseClearance(repeat)
 		if ((rev1 == rev2) && (c < rev1)) {
 			rev1 = c
 			rev2 = c
@@ -324,13 +393,13 @@ class Parametric {
 		}
 		// TODO phase clearance for rev1 != rev2
 		repeat *= Math.max(rev1,rev2)
-		p3 = this.repeatX(p3,repeat)
-		p1 = this.repeat(p1,rev1)
-		p2 = this.repeat(p2,rev2)
+		p1 = Parametric.repeatX(p1,repeat)
+		p2 = Parametric.repeat(p2,rev1)
+		p3 = Parametric.repeat(p3,rev2)
 		return function(s) {
-			var g = p3(s)  // guilloche value
-			var v1 = p1(g.x)
-			var v2 = p2(g.x)
+			var g = p1(s)  // guilloche value
+			var v1 = p2(g.x)
+			var v2 = p3(g.x)
 			var x = v1.x + (v2.x - v1.x)*(g.y+1)/2
 			var y = v1.y + (v2.y - v1.y)*(g.y+1)/2
 			return {x: x, y: y}
@@ -341,6 +410,8 @@ class Parametric {
 class Guilloche {
 	// drawing curves
 
+
+
 	constructor(element) {
 		this.prepareContext(element)
 		this.step = 0.0001
@@ -348,13 +419,14 @@ class Guilloche {
 
 	drawColor(parametric) {
 		var ctx = this.ctx
-		var val = parametric(0)
-		ctx.beginPath()
-		ctx.moveTo(val.x, val.y)
+		var p = Parametric.getParametric(parametric)
+		var val = p(0)
 		var s = 0
 		var k = 0
+		ctx.beginPath()
+		ctx.moveTo(val.x, val.y)
 		while (s < 1) {
-			val = parametric(s)
+			val = p(s)
 			ctx.lineTo(val.x, val.y)
 			ctx.strokeStyle = `rgb(${Math.floor(20 + 200 * s)} , 0, ${Math.floor(220 - 200 * s)} )`
 			s += this.step
@@ -370,12 +442,13 @@ class Guilloche {
 
 	draw(parametric) {
 		var ctx = this.ctx
-		var val = parametric(0)
+		var p = Parametric.getParametric(parametric)
+		var val = p(0)
+		var s = 0
 		ctx.beginPath()
 		ctx.moveTo(val.x, val.y)
-		var s = 0
 		while (s <= 1) {
-			val = parametric(s)
+			val = p(s)
 			ctx.lineTo(val.x, val.y)
 			s += this.step
 		}
@@ -383,12 +456,17 @@ class Guilloche {
 	}
 
 	drawMid(env1, env2, ratio) {
+		var env1 = Parametric.getParametric(env1)
+		var env2 = Parametric.getParametric(env2)
 		var mid = Parametric.mid(env1, env2, ratio)
 		this.draw(mid,0.001)
 	}
 
 	drawFishscale(env1,env2,periodic,rev,repeat,phase,no) { 
 		// draws a fishscale like pattern between envelopes env1, env2
+		var env1 = Parametric.getParametric(env1)
+		var env2 = Parametric.getParametric(env2)
+		var periodic = Parametric.getParametric(periodic)
 		var step = 1/no
 		var i = 0
 		while (i < no) {
@@ -396,7 +474,7 @@ class Guilloche {
 			i++
 			var mid2 = Parametric.mid(env1,env2,i*2*step-1)
 			var o = Parametric.offsetX(periodic, (i*phase)%1)
-			var g = Parametric.guilloche(mid1,mid2,o,rev,rev,repeat)
+			var g = Parametric.guilloche(o,mid1,mid2,rev,rev,repeat)
 			this.draw(g,0.0001)
 		}
 	}

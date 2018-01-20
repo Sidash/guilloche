@@ -10,7 +10,7 @@
 	<canvas width="700" height="700" style="border: 1px solid black" id="test2"></canvas>
 	<canvas width="700" height="700" style="border: 1px solid black" id="test3"></canvas>
 	<canvas width="700" height="700" style="border: 1px solid black" id="test4"></canvas>
-	<canvas width="700" height="700" style="border: 1px solid black" id="test4"></canvas>
+	<canvas width="700" height="700" style="border: 1px solid black" id="test5"></canvas>
 
 <script src="guilloche.js"></script>
 <script type="text/javascript">
@@ -19,28 +19,26 @@
 	g = new Guilloche(elmt)
 	g.step = 0.0001
 
-	p = Parametric
-
 	// definitions
-	e1 = p.sinus(0.2)
-	e1 = p.addX(e1,p.flipX(e1),0.2)
-	e1 = p.rotate(e1,1.5,3,11)
+	e1 = Parametric.sinus(0.2)
+	e1 = Parametric.addX(e1,Parametric.flipX(e1),0.2)
+	e1 = Parametric.rotate(e1,1.5,3,11)
 
-	e2 = p.sinus(0.2)
-	e2 = p.rotate(e2,0.8,3,7)
+	e2 = Parametric.sinus(0.2)
+	e2 = Parametric.rotate(e2,0.8,3,7)
 
-	e3 = p.polygon(5,0.4)
-	e3 = p.offsetS(e3,1-1/2)
-	e3 = p.rotateXY(e3,2*Math.PI/2)
+	e3 = Parametric.polygon(5,0.4)
+	e3 = Parametric.offsetS(e3,1-1/2)
+	e3 = Parametric.rotateXY(e3,2*Math.PI/2)
 
-	e4 = p.circle(0.1)
+	e4 = Parametric.circle(0.1)
 
-	a1 = p.epicycloid(3)
+	a1 = Parametric.epicycloid(3)
 
-	a2 = p.epicycloid(4)
-	a2 = p.guilloche(e2,e3,a2,7,7,20.07)
+	a2 = Parametric.epicycloid(4)
+	a2 = Parametric.guilloche(a2,e2,e3,7,7,20.07)
 
-	a3 = p.sinus(1)
+	a3 = Parametric.sinus(1)
 
 	// Drawing envelopes
 	g.draw(e1)
@@ -66,15 +64,15 @@
 		s = s*Math.PI/2
 		return {x: Math.sin(s), y: Math.cos(s)}
 	}
-	e1 = p.mirrorS(e1,0.5)
+	e1 = Parametric.mirrorS(e1,0.5)
 
-	e2 = p.sinus(0.3)
-	e2 = p.rotateXY(e2,0.5)
-	e2 = p.transform(e2,-1,-0.5,2,0.5)
-	e2 = p.mirrorS(e2,0.5)
+	e2 = Parametric.sinus(0.3)
+	e2 = Parametric.rotateXY(e2,0.5)
+	e2 = Parametric.transform(e2,-1,-0.5,2,0.5)
+	e2 = Parametric.mirrorS(e2,0.5)
 
-	a1 = p.sinus(1)
-	a1 = p.guilloche(e1,e2,a1,7,7,20.1)
+	a1 = Parametric.sinus(1)
+	a1 = Parametric.guilloche(a1,e1,e2,7,7,20.1)
 
 	g.draw(e1)
 	g.draw(e2)
@@ -88,14 +86,14 @@
 		s = s*Math.PI/2
 		return {x: Math.sin(s), y: Math.cos(s)}
 	}
-	e1 = p.mirrorS(e1,0.5)
+	e1 = Parametric.mirrorS(e1,0.5)
 
-	e2 = p.sinus(0.3)
-	e2 = p.rotateXY(e2,0.5)
-	e2 = p.transform(e2,-1,-0.5,2,0.5)
-	e2 = p.mirrorS(e2,0.5)
+	e2 = Parametric.sinus(0.3)
+	e2 = Parametric.rotateXY(e2,0.5)
+	e2 = Parametric.transform(e2,-1,-0.5,2,0.5)
+	e2 = Parametric.mirrorS(e2,0.5)
 
-	a1 = p.sinus(1)
+	a1 = Parametric.sinus(1)
 
 	g.draw(e1)
 	g.draw(e2)
@@ -138,14 +136,14 @@
 		var r = 0.125
 		return {x: r*Math.sin(s), y: r*Math.cos(s)+0.25}
 	}
-	e8 = p.flipS(e8)
+	e8 = Parametric.flipS(e8)
 	e9 = function(s) {
 		var val1 = e1(0)
 		var val2 = e8(1)
 		return {x: val2.x+s*(val1.x - val2.x), y: val2.y + s*(val1.y - val2.y)}
 	}
 
-	eBase = p.appendMulti([e1,e2,e3,e4,e5,e6,e7,e8,e9])
+	eBase = Parametric.appendMulti([e1,e2,e3,e4,e5,e6,e7,e8,e9])
 
 	e10 = function(s) {
 		var o = [0, 0.36, 0.37, 0.39, 0.5, 0.75, 0.88, 0.89, 0.90, 1]
@@ -160,15 +158,39 @@
 		return eBase(s)
 	}
 	//e10 = eBase
-	e11 = p.circle(0.7)
-	e11 = p.offsetS(e11,0.85)
+	e11 = Parametric.circle(0.7)
+	e11 = Parametric.offsetS(e11,0.85)
 
-	a1 = p.sinus(1)
-	a1 = p.guilloche(e10,e11,a1,8,8,30.1)
+	a1 = Parametric.sinus(1)
+	a1 = Parametric.guilloche(a1,e10,e11,8,8,30.1)
 
 	g.draw(e10)
 	g.draw(e11)
 	g.draw(a1)
+
+	////////
+	elmt5 = document.getElementById('test5')
+	g = new Guilloche(elmt5)
+
+	e1 = new Parametric(Parametric.polygon(6,0.3))
+	e1.repeat(2)
+	//e1.rotateXY(0.4)
+
+	e2 = new Parametric(Parametric.sinus(0.1))
+	e3 = new Parametric(Parametric.sinus(0.1))
+	e3.flipX()
+	e2.addX(e3,0.3)
+	e2.rotate(0.8,2,5.5)
+
+
+	g1 = new Parametric(Parametric.epicycloid(3))
+	//g.drawMid(e1,e2,0)
+	//g.drawFishscale(e1,e2,g1,1,40,0,5)
+	g1.guilloche(e1,e2,21,21,10.04)
+
+	g.step = 0.000001
+	g.drawColor(g1)
+
 </script>
 </body>
 </html>
